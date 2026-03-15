@@ -35,8 +35,9 @@ export default function ScrollReveal({
         type: "spring" as const,
         stiffness: 100,
         damping: 15,
-        mass: 1,
-        delay,
+          mass: 1,
+          delay,
+          duration,
       },
     },
   };

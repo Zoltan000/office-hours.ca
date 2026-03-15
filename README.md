@@ -52,7 +52,7 @@ A minimal, modern starter template for building fast websites with Astro. This t
 │   ├── assets/          # Static assets (images, SVGs)
 │   ├── components/      # Reusable Astro components
 │   │   ├── CTA.astro           # Call-to-action section
-│   │   ├── Features.astro      # Features showcase
+│   │   ├── Services.astro      # Services showcase
 │   │   ├── Footer.astro        # Site footer
 │   │   ├── Header.astro        # Site header/navigation
 │   │   ├── Hero.astro          # Hero section
@@ -64,7 +64,7 @@ A minimal, modern starter template for building fast websites with Astro. This t
 │   │   ├── index.astro         # Homepage
 │   │   ├── about.astro         # About page
 │   │   ├── contact.astro      # Contact page
-│   │   ├── features.astro      # Features page
+│   │   ├── services.astro      # Services page
 │   │   └── example.mdx         # MDX example page
 │   └── styles/
 │       ├── global.css          # Global styles & Tailwind imports
@@ -200,8 +200,8 @@ See `src/pages/example.mdx` for a complete example.
 
 ## 🎯 Pages
 
-- **/** - Homepage with hero, features, and CTA sections
-- **/features** - Features showcase page
+- **/** - Homepage with hero, services, and CTA sections
+- **/services** - Services showcase page
 - **/about** - About page
 - **/contact** - Contact form page
 - **/example** - MDX example page demonstrating markdown features

@@ -2,263 +2,276 @@
 import testimonials from "../data/testimonials.js";
 import ScrollReveal from "./ScrollReveal";
 // safe JSON serialization for client-side parsing (escape </script>)
-const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, '<\\/script>');
+const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\\/script>");
 ---
 
-
 <section class="max-w-6xl mx-auto px-4 py-20">
-	<ScrollReveal client:load>
-	<h2 class="text-3xl font-bold text-gray-900 mb-6">Testimonials</h2>
-	</ScrollReveal>
-    <ScrollReveal client:load delay={0.2}>
-	<div class="relative overflow-hidden">
-		<div class="testimonial-track" aria-hidden="true">
-			<div class="testimonial-track-inner">
-				<!-- cards will be injected here client-side to allow randomization on each load -->
-			</div>
-		</div>
-	</div>
-	</ScrollReveal>
+  <ScrollReveal client:load>
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Testimonials</h2>
+  </ScrollReveal>
 
-	<!-- serialized testimonials for client-side rendering -->
-	<script type="application/json" id="testimonials-data" set:html={testimonialsJSON}></script>
+  <ScrollReveal client:load delay={0.2}>
+    <div class="relative overflow-hidden">
+      <div class="testimonial-track" aria-hidden="true">
+        <div class="testimonial-track-inner">
+          <!-- cards will be injected here client-side to allow randomization on each load -->
+        </div>
+      </div>
+    </div>
+  </ScrollReveal>
 
-	<style>
-		.testimonial-track {
-			overflow: hidden;
-			position: relative;
-		}
+  <!-- serialized testimonials for client-side rendering -->
+  <script type="application/json" id="testimonials-data" set:html={testimonialsJSON}></script>
 
-		/* gradient edge overlays — pointer-events: none so cards remain hoverable */
-		.testimonial-track::before,
-		.testimonial-track::after {
-			content: '';
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			width: 80px;
-			z-index: 2;
-			pointer-events: none;
-		}
+  <style>
+    .testimonial-track {
+      overflow: hidden;
+      position: relative;
 
-		.testimonial-track::before {
-			left: 0;
-			background: linear-gradient(to right, white 0%, transparent 100%);
-		}
+      /* subtle edge fade using a mask instead of visible white overlays */
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      );
+    }
 
-		.testimonial-track::after {
-			right: 0;
-			background: linear-gradient(to left, white 0%, transparent 100%);
-		}
+    /* smooth transitions for the emphasis effect */
+    .testimonial-track-inner article {
+      transition:
+        opacity 250ms ease,
+        transform 250ms ease,
+        box-shadow 250ms ease,
+        border-color 250ms ease;
+      will-change: opacity, transform;
+    }
 
-		/* smooth transitions for the emphasis effect */
-		.testimonial-track-inner article {
-			transition: opacity 250ms ease, transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease;
-			will-change: opacity, transform;
-		}
+    .testimonial-track-inner {
+      display: flex;
+      gap: 1.5rem;
+      padding: 0.5rem 0;
+    }
 
-		.testimonial-track-inner {
-			display: flex;
-			gap: 1.5rem;
-			padding: 0.5rem 0;
-		}
+    /* ensure cards shrink nicely on small screens */
+    @media (max-width: 640px) {
+      article {
+        min-width: 280px;
+      }
+    }
+  </style>
 
-		/* ensure cards shrink nicely on small screens */
-		@media (max-width: 640px) {
-			article { min-width: 280px; }
-		}
-	</style>
+  <script type="module">
+    // JS-driven scroll state
+    let scrollOffset = 0; // auto-scroll position
+    let wheelVelocity = 0; // px/s from wheel input, decays to zero
+    let singleWidth = 0;
+    let isHovered = false;
+    let lastTs = null;
+    const SPEED = 80; // px per second
+    const WHEEL_DECAY = 0.01; // fraction remaining after 1s (fast decay → ~0.5s coast)
+    let trackEl = null;
+    let innerEl = null;
 
-	<script type="module">
-		// JS-driven scroll state
-		let scrollOffset  = 0;  // auto-scroll position
-		let wheelVelocity = 0;  // px/s from wheel input, decays to zero
-		let singleWidth  = 0;
-		let isHovered    = false;
-		let lastTs       = null;
-		const SPEED      = 80;   // px per second
-		const WHEEL_DECAY = 0.01; // fraction remaining after 1s (fast decay → ~0.5s coast)
-		let trackEl = null;
-		let innerEl = null;
+    // client-side render + randomize testimonials, then setup marquee
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-		// client-side render + randomize testimonials, then setup marquee
-		function shuffleArray(arr) {
-			for (let i = arr.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[arr[i], arr[j]] = [arr[j], arr[i]];
-			}
-			return arr;
-		}
+    function buildCard(t) {
+      const article = document.createElement("article");
+      article.className =
+        "min-w-[360px] max-w-md bg-white border border-gray-100 rounded-lg p-8 shadow-sm";
 
-		function buildCard(t) {
-			const article = document.createElement('article');
-			article.className = 'min-w-[360px] max-w-md bg-white border border-gray-100 rounded-lg p-8 shadow-sm';
+      const p = document.createElement("p");
+      p.className = "text-gray-700 mb-6 leading-relaxed";
+      p.textContent = `“${t.quote}”`;
+      article.appendChild(p);
 
-			const p = document.createElement('p');
-			p.className = 'text-gray-700 mb-6 leading-relaxed';
-			p.textContent = `“${t.quote}”`;
-			article.appendChild(p);
+      const flex = document.createElement("div");
+      flex.className = "flex items-center gap-4";
 
-			const flex = document.createElement('div');
-			flex.className = 'flex items-center gap-4';
+      const avatar = document.createElement("div");
+      avatar.className =
+        "w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold text-gray-700";
+      avatar.textContent = t.initials;
+      flex.appendChild(avatar);
 
-			const avatar = document.createElement('div');
-			avatar.className = 'w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold text-gray-700';
-			avatar.textContent = t.initials;
-			flex.appendChild(avatar);
+      const meta = document.createElement("div");
+      const nameDiv = document.createElement("div");
+      nameDiv.className = "font-semibold text-gray-900";
+      nameDiv.textContent = t.name;
+      const courseDiv = document.createElement("div");
+      courseDiv.className = "text-sm text-gray-500";
+      courseDiv.textContent = t.course;
+      meta.appendChild(nameDiv);
+      meta.appendChild(courseDiv);
 
-			const meta = document.createElement('div');
-			const nameDiv = document.createElement('div');
-			nameDiv.className = 'font-semibold text-gray-900';
-			nameDiv.textContent = t.name;
-			const courseDiv = document.createElement('div');
-			courseDiv.className = 'text-sm text-gray-500';
-			courseDiv.textContent = t.course;
-			meta.appendChild(nameDiv);
-			meta.appendChild(courseDiv);
+      flex.appendChild(meta);
+      article.appendChild(flex);
 
-			flex.appendChild(meta);
-			article.appendChild(flex);
+      return article;
+    }
 
-			return article;
-		}
+    function updateCardEmphasis() {
+      const track = document.querySelector(".testimonial-track");
+      const cards = document.querySelectorAll(".testimonial-track-inner article");
+      if (!track || !cards.length) return;
 
-		function updateCardEmphasis() {
-			const track = document.querySelector('.testimonial-track');
-			const cards = document.querySelectorAll('.testimonial-track-inner article');
-			if (!track || !cards.length) return;
+      const trackRect = track.getBoundingClientRect();
+      const trackCenter = trackRect.left + trackRect.width / 2;
 
-			const trackRect = track.getBoundingClientRect();
-			const trackCenter = trackRect.left + trackRect.width / 2;
+      cards.forEach((card) => {
+        const cardRect = card.getBoundingClientRect();
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const distance = Math.abs(cardCenter - trackCenter);
+        // normalize: 0 at center, 1 at edge of visible track
+        const t = Math.min(distance / (trackRect.width / 2), 1);
 
-			cards.forEach(card => {
-				const cardRect = card.getBoundingClientRect();
-				const cardCenter = cardRect.left + cardRect.width / 2;
-				const distance = Math.abs(cardCenter - trackCenter);
-				// normalize: 0 at center, 1 at edge of visible track
-				const t = Math.min(distance / (trackRect.width / 2), 1);
+        // keep your current tuned values here
+        const opacity = 1 - t * 0.20; // 1.0 → 0.80
+        const scale = 1 - t * 0.05; // 1.0 → 0.95
 
-				// opacity + scale
-					const opacity = 1 - t * 0.20;  // 1.0 → 0.80
-					const scale   = 1 - t * 0.05;  // 1.0 → 0.95
+        // shadow: prominent at center, flat at edges
+        // center: 0 5px 24px rgba(0,0,0,0.13) | edge: 0 1px 3px rgba(0,0,0,0.04)
+        const shadowAlpha = 0.13 - t * 0.09;
+        const shadowBlur = 24 - t * 21;
+        const shadowY = 5 - t * 4;
+        const boxShadow = `0 ${shadowY.toFixed(1)}px ${shadowBlur.toFixed(
+          1
+        )}px rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
 
-					// shadow: prominent at center, flat at edges
-					// center: 0 5px 24px rgba(0,0,0,0.13) | edge: 0 1px 3px rgba(0,0,0,0.04)
-					const shadowAlpha = 0.13 - t * 0.09;
-					const shadowBlur  = 24   - t * 21;
-					const shadowY     = 5    - t * 4;
-					const boxShadow   = `0 ${shadowY.toFixed(1)}px ${shadowBlur.toFixed(1)}px rgba(0,0,0,${shadowAlpha.toFixed(3)})`;
+        // border: gray-400 (#c8cdd6) at center → gray-100 (#f3f4f6) at edge
+        const br = Math.round(200 + t * 43); // 200 → 243
+        const bg = Math.round(205 + t * 39); // 205 → 244
+        const bb = Math.round(214 + t * 29); // 214 → 243
+        const borderColor = `rgb(${br},${bg},${bb})`;
 
-					// border: gray-400 (#c8cdd6) at center → gray-100 (#f3f4f6) at edge
-					const br = Math.round(200 + t * 43);  // 200 → 243
-					const bg = Math.round(205 + t * 39);  // 205 → 244
-					const bb = Math.round(214 + t * 29);  // 214 → 243
-				const borderColor = `rgb(${br},${bg},${bb})`;
+        card.style.opacity = opacity;
+        card.style.transform = `scale(${scale})`;
+        card.style.boxShadow = boxShadow;
+        card.style.borderColor = borderColor;
+      });
 
-				card.style.opacity     = opacity;
-				card.style.transform   = `scale(${scale})`;
-				card.style.boxShadow   = boxShadow;
-				card.style.borderColor = borderColor;
-			});
+      requestAnimationFrame(updateCardEmphasis);
+    }
 
-			requestAnimationFrame(updateCardEmphasis);
-		}
+    function tick(ts) {
+      if (!innerEl || !trackEl) {
+        requestAnimationFrame(tick);
+        return;
+      }
+      const paused = isHovered || trackEl.matches(":focus-within");
+      const dt = lastTs !== null ? ts - lastTs : 0;
+      lastTs = ts;
 
-		function tick(ts) {
-			if (!innerEl || !trackEl) { requestAnimationFrame(tick); return; }
-			const paused = isHovered || trackEl.matches(':focus-within');
-			const dt = lastTs !== null ? ts - lastTs : 0;
-			lastTs = ts;
+      if (dt > 0) {
+        // auto-scroll when not paused
+        if (!paused) scrollOffset += (SPEED * dt) / 1000;
 
-			if (dt > 0) {
-				// auto-scroll when not paused
-				if (!paused) scrollOffset += SPEED * dt / 1000;
+        // apply wheel velocity into scrollOffset and decay it
+        if (Math.abs(wheelVelocity) > 0.5) {
+          scrollOffset += (wheelVelocity * dt) / 1000;
+          wheelVelocity *= Math.pow(WHEEL_DECAY, dt / 1000);
+        } else {
+          wheelVelocity = 0;
+        }
 
-				// apply wheel velocity into scrollOffset and decay it
-				if (Math.abs(wheelVelocity) > 0.5) {
-					scrollOffset += wheelVelocity * dt / 1000;
-					wheelVelocity *= Math.pow(WHEEL_DECAY, dt / 1000);
-				} else {
-					wheelVelocity = 0;
-				}
+        // keep scrollOffset in [0, singleWidth)
+        if (singleWidth > 0)
+          scrollOffset = ((scrollOffset % singleWidth) + singleWidth) % singleWidth;
+      }
 
-				// keep scrollOffset in [0, singleWidth)
-				if (singleWidth > 0)
-					scrollOffset = ((scrollOffset % singleWidth) + singleWidth) % singleWidth;
-			}
+      innerEl.style.transform = `translateX(-${scrollOffset}px)`;
+      requestAnimationFrame(tick);
+    }
 
-			innerEl.style.transform = `translateX(-${scrollOffset}px)`;
-			requestAnimationFrame(tick);
-		}
+    function setupMarquee() {
+      if (!innerEl) return;
+      const total = innerEl.scrollWidth;
+      singleWidth = total / 2 || total;
+    }
 
-		function setupMarquee() {
-			if (!innerEl) return;
-			const total = innerEl.scrollWidth;
-			singleWidth = total / 2 || total;
-		}
+    function init() {
+      const dataEl = document.getElementById("testimonials-data");
+      if (!dataEl) return;
+      let list = [];
+      try {
+        list = JSON.parse(dataEl.textContent || "[]");
+      } catch (e) {
+        console.error("Invalid testimonials JSON", e);
+        return;
+      }
 
-		function init() {
-			const dataEl = document.getElementById('testimonials-data');
-			if (!dataEl) return;
-			let list = [];
-			try {
-				list = JSON.parse(dataEl.textContent || '[]');
-			} catch (e) {
-				console.error('Invalid testimonials JSON', e);
-				return;
-			}
+      // shuffle the list so order is different each load
+      shuffleArray(list);
 
-			// shuffle the list so order is different each load
-			shuffleArray(list);
+      // duplicate the shuffled list for seamless marquee
+      const display = [...list, ...list];
 
-			// duplicate the shuffled list for seamless marquee
-			const display = [...list, ...list];
+      const inner = document.querySelector(".testimonial-track-inner");
+      if (!inner) return;
+      // clear any existing
+      inner.innerHTML = "";
 
-			const inner = document.querySelector('.testimonial-track-inner');
-			if (!inner) return;
-			// clear any existing
-			inner.innerHTML = '';
+      for (const t of display) {
+        inner.appendChild(buildCard(t));
+      }
 
-			for (const t of display) {
-				inner.appendChild(buildCard(t));
-			}
+      // store element references for the tick loop
+      trackEl = document.querySelector(".testimonial-track");
+      innerEl = inner;
 
-			// store element references for the tick loop
-			trackEl = document.querySelector('.testimonial-track');
-			innerEl = inner;
+      // measure card widths and start JS-driven scroll
+      setupMarquee();
+      requestAnimationFrame(tick);
 
-			// measure card widths and start JS-driven scroll
-			setupMarquee();
-			requestAnimationFrame(tick);
+      // start center-emphasis loop
+      requestAnimationFrame(updateCardEmphasis);
 
-			// start center-emphasis loop
-			requestAnimationFrame(updateCardEmphasis);
+      // pause on hover; allow wheel to scroll manually
+      trackEl.addEventListener("mouseenter", () => {
+        isHovered = true;
+      });
+      trackEl.addEventListener("mouseleave", () => {
+        isHovered = false;
+        lastTs = null; // prevent position jump on resume
+      });
+      trackEl.addEventListener(
+        "wheel",
+        (e) => {
+          if (!isHovered) return;
+          e.preventDefault();
+          // add to wheel velocity (px/s); tick() will coast it to zero
+          wheelVelocity += e.deltaY * 5;
+        },
+        { passive: false }
+      );
 
-			// pause on hover; allow wheel to scroll manually
-			trackEl.addEventListener('mouseenter', () => { isHovered = true; });
-			trackEl.addEventListener('mouseleave', () => {
-				isHovered = false;
-				lastTs = null; // prevent position jump on resume
-			});
-			trackEl.addEventListener('wheel', (e) => {
-				if (!isHovered) return;
-				e.preventDefault();
-				// add to wheel velocity (px/s); tick() will coast it to zero
-				wheelVelocity += e.deltaY * 5;
-			}, { passive: false });
+      // recalc on resize
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(setupMarquee, 150);
+      });
+    }
 
-			// recalc on resize
-			let resizeTimeout;
-			window.addEventListener('resize', () => {
-				clearTimeout(resizeTimeout);
-				resizeTimeout = setTimeout(setupMarquee, 150);
-			});
-		}
-
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', init);
-		} else {
-			init();
-		}
-	</script>
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", init);
+    } else {
+      init();
+    }
+  </script>
 </section>

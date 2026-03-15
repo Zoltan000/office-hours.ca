@@ -1,6 +1,7 @@
 ---
 import ScrollReveal from "./ScrollReveal";
 import { Icon } from "astro-icon/components";
+import solidworksIcon from "../assets/solidworks.svg";
 ---
 
 <section id="services" class="max-w-6xl mx-auto px-4 py-20">
@@ -32,6 +33,7 @@ import { Icon } from "astro-icon/components";
         <div
           class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4"
         >
+        
           <Icon
             name="tabler:pencil"
             class="w-6 h-6 text-gray-900"
@@ -84,7 +86,7 @@ import { Icon } from "astro-icon/components";
         <div
           class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4"
         >
-          <Icon name="tabler:brand-sass" class="w-6 h-6 text-gray-900" aria-hidden="true" />
+          <img src={solidworksIcon.src} alt="" aria-hidden="true" class="w-6 h-6 object-contain" />
         </div>
         <h3 class="text-xl font-semibold text-gray-900 mb-2">CAD help</h3>
         <p class="text-gray-600">

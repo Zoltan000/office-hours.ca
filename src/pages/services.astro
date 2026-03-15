@@ -20,10 +20,108 @@ import { SITE } from "../config/site.mjs";
       </ScrollReveal>
       <ScrollReveal client:load delay={0.1}>
         <p class="text-xl text-gray-600 mb-12">
-          Everything you need to build modern web experiences.
+          Below is a breakdown of the services I offer and their pricing. If you're unsure which one applies to you, feel free to reach out.
         </p>
       </ScrollReveal>
-      <ServicesComponent />
+      <div class="space-y-8">
+
+        <section id="tutoring" class="scroll-mt-20">
+          <ScrollReveal client:load delay={0.2}><h2 class="text-2xl font-semibold text-gray-900 mb-2">Course Tutoring</h2></ScrollReveal>
+          <ScrollReveal client:load delay={0.3}>
+          <p class="text-gray-600 mb-1">One-on-one tutoring for mechanical engineering courses.</p>
+          <p class="text-gray-600 mb-1">Sessions can include reviewing lecture material, working through practice problems, 
+            preparing for labs, or understanding assignments.</p>
+            <p class="text-gray-600">I can tutor a wide range of courses, but I specialize in the following:</p></ScrollReveal>
+            <div class="flex flex-wrap gap-3 mt-2">
+            <ScrollReveal client:load direction="left" delay={0.4}>
+              <span class="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium">
+              MECH 368
+              </span>
+            </ScrollReveal>
+            <ScrollReveal client:load direction="left" delay={0.45}>
+            <span class="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium">
+              MIAE 311
+            </span></ScrollReveal>
+            <ScrollReveal client:load direction="left" delay={0.5}>
+            <span class="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium">
+              MIAE 312
+            </span></ScrollReveal>
+            <ScrollReveal client:load direction="left" delay={0.55}>
+            <span class="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium">
+              MIAE 313
+            </span></ScrollReveal>
+            <ScrollReveal client:load direction="left" delay={0.6}>
+            <span class="px-3 py-1 border border-gray-200 rounded-md text-sm font-medium">
+              MIAE 343
+            </span></ScrollReveal>
+            </div>
+          <ScrollReveal client:load delay={0.65}>
+            <h3 class="text-xl font-semibold text-gray-900 mt-2">Price</h3>
+          <p class="flex flex-wrap items-baseline gap-3 text-gray-600">
+            <span class="text-gray-500">$50 per hour</span>
+            <span class="text-gray-400">·</span>
+            <span>
+              <span class="text-gray-600">$35 per hour</span>
+              <span class="ml-1 text-sm text-gray-500">per person for groups of two</span>
+            </span>
+          </p></ScrollReveal>
+        </section>
+        <section id="exam-prep" class="scroll-mt-20">
+          <ScrollReveal client:load delay={0.2}><h2 class="text-2xl font-semibold text-gray-900 mb-2">Final Exam Prep</h2></ScrollReveal>
+          <ScrollReveal client:load delay={0.4}>
+            <p class="text-gray-600 mb-1">Focused sessions to prepare for midterms or finals.</p>
+            <p class="text-gray-600 mb-1">Most exam prep sessions focus on reviewing the key concepts from the course, 
+              working through practice problems, and identifying areas that need clarification.</p>
+            <p class="text-gray-600 mb-2">For many courses, it's possible to review the major topics of the course in around 4–6 hours, 
+                depending on how much material needs to be covered. I can also provide review material and go through past exams when available.</p>
+          </ScrollReveal>
+          <ScrollReveal client:load delay={0.6}>
+          <h3 class="text-xl font-semibold text-gray-900">Price</h3>
+          <p class="flex flex-wrap items-baseline gap-3 text-gray-600">
+            <span class="text-gray-500">$50 per hour</span>
+            <span class="text-gray-400">·</span>
+            <span>
+              <span class="text-gray-600">$35 per hour</span>
+              <span class="ml-1 text-sm text-gray-500">per person for groups of two</span>
+            </span>
+          </p>
+        </ScrollReveal>
+        </section>
+
+        <section id="3d-printing">
+          <ScrollReveal client:load delay={0.2}><h2 class="text-2xl font-semibold text-gray-900 mb-2">3D Printing</h2></ScrollReveal>
+          <ScrollReveal client:load delay={0.4}>
+            <p class="text-gray-600">3D printing services for course projects, prototypes, and personal prints.</p>
+            <p class="text-gray-600 mt-2">If you already have an STL file, you can send it over and I can estimate the print time and cost. 
+            I can also review models beforehand and suggest small adjustments if needed to ensure they print well.</p>
+            <p class="text-gray-600 mt-2">Parts are printed on a Bambu Lab X1C with an AMS, which allows for reliable prints and the ability
+            to handle multiple materials or colors when needed. If you require a specific filament type or nozzle size, feel free to reach out to confirm availability.</p>
+          </ScrollReveal>
+          <ScrollReveal client:load delay={0.6}>
+            <h3 class="text-xl font-semibold text-gray-900 mt-2">Pricing</h3>
+          <p class="flex flex-wrap items-baseline gap-3 text-gray-600">
+            <span class="text-gray-600">$5 per hour of printing</span>
+            <span class="text-gray-600"> + </span>
+            <span class="text-gray-600">material costs</span>
+            <span class="text-gray-600"> + </span>
+            <span class="text-gray-600">$20 rush fee (optional)</span>
+          </p>
+          <p class="text-gray-600">Subject to a $10 minimum for small prints</p></ScrollReveal>
+        </section>
+
+        <section id="cad-help">
+          <ScrollReveal client:load delay={0.2}><h2 class="text-2xl font-semibold text-gray-900 mb-2">CAD Help</h2></ScrollReveal>
+          <ScrollReveal client:load delay={0.4}>
+            <p class="text-gray-600 mb-1">Support with SolidWorks, modeling, assemblies, and design questions.</p>
+            <p class="text-gray-600 mb-2">Useful for course projects, design assignments, or troubleshooting models that aren’t behaving as expected.</p>
+          </ScrollReveal>
+          <ScrollReveal client:load delay={0.6}><h3 class="text-xl font-semibold text-gray-900">Price</h3>
+            <p class="flex flex-wrap items-baseline gap-3 text-gray-600">
+            <span class="text-gray-500">$50 per hour</span>
+          </p></ScrollReveal>
+        </section>
+
+      </div>
     </section>
   </main>
   <Footer />

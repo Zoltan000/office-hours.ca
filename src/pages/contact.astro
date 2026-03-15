@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import ContactForm from "../components/ContactForm.astro";
 import ScrollReveal from "../components/ScrollReveal";
 import { SITE } from "../config/site.mjs";
+import { Icon } from "astro-icon/components";
 ---
 
 <Layout
@@ -19,9 +20,49 @@ import { SITE } from "../config/site.mjs";
         <h1 class="text-5xl font-bold text-gray-900 mb-4">Contact</h1>
       </ScrollReveal>
       <ScrollReveal client:idle delay={0.2}>
-        <p class="text-xl text-gray-600 mb-12">Get in touch with me. I'd love to hear from you.</p>
+        <p class="text-xl text-gray-600 mb-2">Get in touch with me. I'd love to hear from you.</p>
       </ScrollReveal>
       
+      <!-- Desktop: fixed top-right bubble (outer container NOT animated) -->
+      <div class="fixed top-20 right-4 z-50 p-0 bg-transparent hidden sm:block">
+        <ScrollReveal client:load direction="up" distance={18} delay={0.05}>
+          <div class="p-4 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-lg shadow-md flex items-start gap-3 text-gray-700">
+            <Icon name="tabler:phone" class="w-5 h-5 mt-1 text-gray-900" aria-hidden="true" />
+            <p class="text-base">
+              Prefer to reach out directly?<br />
+              Call or text me at
+              <a
+                href="tel:+15146214989"
+                class="font-semibold text-gray-900 hover:underline"
+              >
+                (514) 621-4989
+              </a>.
+              <span class="text-gray-500">Texting is usually fastest.</span>
+            </p>
+          </div>
+        </ScrollReveal>
+      </div>
+
+      <!-- Mobile: centered bubble above the form (appears in flow) -->
+      <div class="sm:hidden flex justify-center mb-4">
+        <ScrollReveal client:idle direction="up" distance={20} delay={0.12}>
+          <div class="w-full max-w-md p-4 bg-white/95 backdrop-blur-sm border border-gray-100 rounded-lg shadow-md flex items-start gap-3 text-gray-700">
+            <Icon name="tabler:phone" class="w-5 h-5 mt-1 text-gray-900" aria-hidden="true" />
+            <p class="text-base">
+              Prefer to reach out directly?<br />
+              Call or text me at
+              <a
+                href="tel:+15146214989"
+                class="font-semibold text-gray-900 hover:underline"
+              >
+                (514) 621-4989
+              </a>.
+              <span class="text-gray-500">Texting is usually fastest.</span>
+            </p>
+          </div>
+        </ScrollReveal>
+      </div>
+
       <ScrollReveal client:idle delay={0.3}>
         <ContactForm />
       </ScrollReveal>

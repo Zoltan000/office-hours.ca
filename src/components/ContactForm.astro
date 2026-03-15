@@ -3,7 +3,7 @@ import { SITE } from "../config/site.mjs";
 
 // Web3Forms integration
 // Get your access key from https://web3forms.com
-const web3formsAccessKey = SITE.web3formsAccessKey || "";
+const web3formsAccessKey = SITE.web3formsAccessKeyContact || "";
 ---
 
 <form
@@ -18,6 +18,8 @@ const web3formsAccessKey = SITE.web3formsAccessKey || "";
   {web3formsAccessKey && (
     <input type="hidden" name="access_key" value={web3formsAccessKey} />
   )}
+  <!-- Duplicate name into a plain `name` field so exports include it -->
+  <input type="hidden" id="c-hidden-name" name="name" value="" />
   
   <!-- Web3Forms Subject (optional) -->
   <input type="hidden" name="subject" value="New Contact Form Submission" />
@@ -143,6 +145,13 @@ const web3formsAccessKey = SITE.web3formsAccessKey || "";
   const nameError = document.getElementById("name-error") as HTMLSpanElement;
   const emailError = document.getElementById("email-error") as HTMLSpanElement;
   const messageError = document.getElementById("message-error") as HTMLSpanElement;
+  const hiddenName = document.getElementById("c-hidden-name") as HTMLInputElement;
+
+  function syncHiddenName() {
+    if (hiddenName) hiddenName.value = nameInput.value.trim();
+  }
+  nameInput.addEventListener("input", syncHiddenName);
+  syncHiddenName();
 
   // Validation functions
   function validateEmail(email: string): boolean {

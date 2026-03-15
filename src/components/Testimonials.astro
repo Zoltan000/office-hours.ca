@@ -1,6 +1,8 @@
 ---
 import testimonials from "../data/testimonials.js";
 import ScrollReveal from "./ScrollReveal";
+// safe JSON serialization for client-side parsing (escape </script>)
+const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, '<\\/script>');
 ---
 
 
@@ -9,30 +11,17 @@ import ScrollReveal from "./ScrollReveal";
 	<h2 class="text-3xl font-bold text-gray-900 mb-6">Testimonials</h2>
 	</ScrollReveal>
     <ScrollReveal client:load delay={0.2}>
-    <div class="relative overflow-hidden">
+	<div class="relative overflow-hidden">
 		<div class="testimonial-track" aria-hidden="true">
 			<div class="testimonial-track-inner">
-				{
-					// duplicate the array inline so the track can scroll seamlessly
-					[...testimonials, ...testimonials].map((t, i) => (
-						<article class="min-w-[360px] max-w-md bg-white border border-gray-100 rounded-lg p-8 shadow-sm">
-							<p class="text-gray-700 mb-6 leading-relaxed">“{t.quote}”</p>
-							<div class="flex items-center gap-4">
-								<div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold text-gray-700">
-									{t.initials}
-								</div>
-								<div>
-									<div class="font-semibold text-gray-900">{t.name}</div>
-									<div class="text-sm text-gray-500">{t.course}</div>
-								</div>
-							</div>
-						</article>
-					))
-				}
+				<!-- cards will be injected here client-side to allow randomization on each load -->
 			</div>
 		</div>
+	</div>
 	</ScrollReveal>
-    </div>
+
+	<!-- serialized testimonials for client-side rendering -->
+	<script type="application/json" id="testimonials-data" set:html={testimonialsJSON}></script>
 
 	<style>
 		.testimonial-track {
@@ -72,32 +61,101 @@ import ScrollReveal from "./ScrollReveal";
 	</style>
 
 	<script type="module">
-		// Measure the single set width and set CSS variables for smooth animation
+		// client-side render + randomize testimonials, then setup marquee
+		function shuffleArray(arr) {
+			for (let i = arr.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[arr[i], arr[j]] = [arr[j], arr[i]];
+			}
+			return arr;
+		}
+
+		function buildCard(t) {
+			const article = document.createElement('article');
+			article.className = 'min-w-[360px] max-w-md bg-white border border-gray-100 rounded-lg p-8 shadow-sm';
+
+			const p = document.createElement('p');
+			p.className = 'text-gray-700 mb-6 leading-relaxed';
+			p.textContent = `“${t.quote}”`;
+			article.appendChild(p);
+
+			const flex = document.createElement('div');
+			flex.className = 'flex items-center gap-4';
+
+			const avatar = document.createElement('div');
+			avatar.className = 'w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-sm font-semibold text-gray-700';
+			avatar.textContent = t.initials;
+			flex.appendChild(avatar);
+
+			const meta = document.createElement('div');
+			const nameDiv = document.createElement('div');
+			nameDiv.className = 'font-semibold text-gray-900';
+			nameDiv.textContent = t.name;
+			const courseDiv = document.createElement('div');
+			courseDiv.className = 'text-sm text-gray-500';
+			courseDiv.textContent = t.course;
+			meta.appendChild(nameDiv);
+			meta.appendChild(courseDiv);
+
+			flex.appendChild(meta);
+			article.appendChild(flex);
+
+			return article;
+		}
+
 		function setupMarquee() {
 			const inner = document.querySelector('.testimonial-track-inner');
 			if (!inner) return;
 			// total width of both sets
 			const total = inner.scrollWidth;
-			const single = total / 2;
-			// set --scroll-width to the pixel width of one set
+			const single = total / 2 || total;
 			inner.style.setProperty('--scroll-width', single + 'px');
-			// derive duration so speed is reasonable (px per second)
 			const speed = 80; // px per second
 			const duration = Math.max(12, Math.round(single / speed));
 			inner.style.setProperty('--anim-duration', duration + 's');
 		}
 
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', setupMarquee);
-		} else {
+		function init() {
+			const dataEl = document.getElementById('testimonials-data');
+			if (!dataEl) return;
+			let list = [];
+			try {
+				list = JSON.parse(dataEl.textContent || '[]');
+			} catch (e) {
+				console.error('Invalid testimonials JSON', e);
+				return;
+			}
+
+			// shuffle the list so order is different each load
+			shuffleArray(list);
+
+			// duplicate the shuffled list for seamless marquee
+			const display = [...list, ...list];
+
+			const inner = document.querySelector('.testimonial-track-inner');
+			if (!inner) return;
+			// clear any existing
+			inner.innerHTML = '';
+
+			for (const t of display) {
+				inner.appendChild(buildCard(t));
+			}
+
+			// measure and start animation
 			setupMarquee();
+
+			// recalc on resize
+			let resizeTimeout;
+			window.addEventListener('resize', () => {
+				clearTimeout(resizeTimeout);
+				resizeTimeout = setTimeout(setupMarquee, 150);
+			});
 		}
 
-		// Recalculate on resize to handle responsive layout
-		let resizeTimeout;
-		window.addEventListener('resize', () => {
-			clearTimeout(resizeTimeout);
-			resizeTimeout = setTimeout(setupMarquee, 150);
-		});
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', init);
+		} else {
+			init();
+		}
 	</script>
 </section>

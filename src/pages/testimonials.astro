@@ -2,28 +2,29 @@
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import ContactForm from "../components/ContactForm.astro";
+import TestimonialsForm from "../components/TestimonialsForm.astro";
 import ScrollReveal from "../components/ScrollReveal";
 import { SITE } from "../config/site.mjs";
 import { Icon } from "astro-icon/components";
 ---
 
 <Layout
-  title={`Contact | ${SITE.title}`}
-  description="Get in touch with me. I'd love to hear from you about private tutoring or any questions you may have."
-  canonicalURL={`${SITE.url}/contact`}
+  title={`Testimonial Submission | ${SITE.title}`}
+  description="I'd love to hear from you about your experience or feedback."
+  canonicalURL={`${SITE.url}/testimonials`}
 >
   <Header />
   <main id="main-content" role="main">
     <section class="max-w-2xl mx-auto px-4 py-20">
       <ScrollReveal client:idle>
-        <h1 class="text-5xl font-bold text-gray-900 mb-4">Contact</h1>
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">Submit a Testimonial</h1>
       </ScrollReveal>
       <ScrollReveal client:idle delay={0.2}>
-        <p class="text-xl text-gray-600 mb-2">Get in touch with me. I'd love to hear from you.</p>
+        <p class="text-xl text-gray-600 mb-2">I'd love it if you could share your experience or feedback.</p>
       </ScrollReveal>
-      
+ 
       <!-- Desktop: fixed top-right bubble (outer container NOT animated) -->
+      <!--  
       <div class="fixed top-20 right-4 z-50 p-0 bg-transparent hidden sm:block">
         <ScrollReveal client:load direction="up" distance={18} delay={0.05}>
           <div class="p-4 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-lg shadow-md flex items-start gap-3 text-gray-700">
@@ -42,8 +43,10 @@ import { Icon } from "astro-icon/components";
           </div>
         </ScrollReveal>
       </div>
+    -->
 
       <!-- Mobile: centered bubble above the form (appears in flow) -->
+       <!-- 
       <div class="sm:hidden flex justify-center mb-4">
         <ScrollReveal client:idle direction="up" distance={20} delay={0.12}>
           <div class="w-full max-w-md p-4 bg-white/95 backdrop-blur-sm border border-gray-100 rounded-lg shadow-md flex items-start gap-3 text-gray-700">
@@ -62,10 +65,10 @@ import { Icon } from "astro-icon/components";
           </div>
         </ScrollReveal>
       </div>
-
+      -->
+      
       <ScrollReveal client:idle delay={0.3}>
-        <ContactForm />
-        <p class="text-sm text-gray-600 mt-3">would you like to leave a testimonial/feedback? <a href="/testimonials" class="underline font-medium">click here</a></p>
+        <TestimonialsForm />
       </ScrollReveal>
     </section>
   </main>

@@ -27,6 +27,7 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
     .testimonial-track {
       overflow: hidden;
       position: relative;
+      touch-action: pan-y pinch-zoom;
 
       /* subtle edge fade using a mask instead of visible white overlays */
       -webkit-mask-image: linear-gradient(
@@ -72,14 +73,21 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
   <script type="module">
     // JS-driven scroll state
     let scrollOffset = 0; // auto-scroll position
-    let wheelVelocity = 0; // px/s from wheel input, decays to zero
+    let wheelVelocity = 0; // px/s from manual input, decays to zero
     let singleWidth = 0;
     let isHovered = false;
+    let isTouchActive = false;
+    let isTouchDragging = false;
     let lastTs = null;
     const SPEED = 80; // px per second
     const WHEEL_DECAY = 0.01; // fraction remaining after 1s (fast decay → ~0.5s coast)
     let trackEl = null;
     let innerEl = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartOffset = 0;
+    let touchLastX = 0;
+    let touchLastTs = 0;
 
     // client-side render + randomize testimonials, then setup marquee
     function shuffleArray(arr) {
@@ -173,7 +181,7 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
         requestAnimationFrame(tick);
         return;
       }
-      const paused = isHovered || trackEl.matches(":focus-within");
+      const paused = isHovered || isTouchActive || trackEl.matches(":focus-within");
       const dt = lastTs !== null ? ts - lastTs : 0;
       lastTs = ts;
 
@@ -202,6 +210,17 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
       if (!innerEl) return;
       const total = innerEl.scrollWidth;
       singleWidth = total / 2 || total;
+    }
+
+    function wrapOffset(offset) {
+      if (singleWidth <= 0) return offset;
+      return ((offset % singleWidth) + singleWidth) % singleWidth;
+    }
+
+    function endTouchDrag() {
+      isTouchActive = false;
+      isTouchDragging = false;
+      lastTs = null;
     }
 
     function init() {
@@ -259,6 +278,64 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
         },
         { passive: false }
       );
+
+      trackEl.addEventListener(
+        "touchstart",
+        (e) => {
+          if (e.touches.length !== 1) return;
+          const touch = e.touches[0];
+          isTouchActive = true;
+          isTouchDragging = false;
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+          touchStartOffset = scrollOffset;
+          touchLastX = touch.clientX;
+          touchLastTs = performance.now();
+          wheelVelocity = 0;
+          lastTs = null;
+        },
+        { passive: true }
+      );
+
+      trackEl.addEventListener(
+        "touchmove",
+        (e) => {
+          if (!isTouchActive || e.touches.length !== 1) return;
+
+          const touch = e.touches[0];
+          const deltaX = touch.clientX - touchStartX;
+          const deltaY = touch.clientY - touchStartY;
+
+          if (!isTouchDragging) {
+            if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > Math.abs(deltaX)) {
+              endTouchDrag();
+              return;
+            }
+
+            if (Math.abs(deltaX) < 10 || Math.abs(deltaX) < Math.abs(deltaY)) {
+              return;
+            }
+
+            isTouchDragging = true;
+          }
+
+          e.preventDefault();
+
+          scrollOffset = wrapOffset(touchStartOffset - deltaX);
+
+          const now = performance.now();
+          const dt = now - touchLastTs;
+          if (dt > 0) {
+            wheelVelocity = ((touchLastX - touch.clientX) / dt) * 1000;
+          }
+          touchLastX = touch.clientX;
+          touchLastTs = now;
+        },
+        { passive: false }
+      );
+
+      trackEl.addEventListener("touchend", endTouchDrag);
+      trackEl.addEventListener("touchcancel", endTouchDrag);
 
       // recalc on resize
       let resizeTimeout;

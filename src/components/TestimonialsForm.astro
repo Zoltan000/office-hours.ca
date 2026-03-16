@@ -65,7 +65,7 @@ const web3formsAccessKey = SITE.web3fromsAccessKeyTestimonials || "";
 
   <!-- Initials + Course on one line -->
   <div class="flex items-start gap-4">
-    <div class="w-28">
+    <div class="w-24">
       <label for="t-initials" class="block text-sm font-medium text-gray-700 mb-2">
         Initials <span class="text-red-600" aria-label="required">*</span>
       </label>
@@ -82,16 +82,16 @@ const web3formsAccessKey = SITE.web3fromsAccessKeyTestimonials || "";
       <span id="t-initials-error" class="mt-1 text-sm text-red-600 hidden" role="alert" aria-live="polite"></span>
     </div>
 
-    <div class="w-32">
+    <div class="w-30 shrink-0">
       <label for="t-course" class="block text-sm font-medium text-gray-700 mb-2">
         Course <span class="text-red-600" aria-label="required">*</span>
       </label>
-      <div class="flex items-center gap-3">
+      <div>
         <input
           type="text"
           id="t-course"
           name="course"
-          class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-colors"
+          class="w-full min-w-0 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition-colors"
           required
           aria-required="true"
           aria-describedby="t-course-error"
@@ -99,7 +99,7 @@ const web3formsAccessKey = SITE.web3fromsAccessKeyTestimonials || "";
           minlength="8"
           pattern="[A-Za-z]{4} [0-9]{3}"
         />
-        <span id="t-course-error" class="text-sm text-red-600 hidden whitespace-nowrap" role="alert" aria-live="polite"></span>
+        <span id="t-course-error" class="mt-1 block text-sm text-red-600 hidden" role="alert" aria-live="polite"></span>
       </div>
     </div>
   </div>

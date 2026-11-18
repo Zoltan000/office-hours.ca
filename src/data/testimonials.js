@@ -8,7 +8,7 @@ const testimonials = [
   {
     name: "Giordano Narcisi",
     initials: "GN",
-    course: "MECH 228",
+    course: "MECH 368",
     quote: "Love this guy he’s insane"
   }
 ];

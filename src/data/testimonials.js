@@ -1,39 +1,15 @@
 const testimonials = [
   {
-    name: "Student A",
-    initials: "SA",
+    name: "Michael Fazioli",
+    initials: "MF",
     course: "MECH 368",
-    quote: "Helped me understand circuits clearly — aced the midterm!"
+    quote: "Zoltan is a great tutor! He is very patient and willing to help with whatever problems you want to go over. He will also assess your understanding and provide you with problems for your level. If you need a tutor, go for him and you will not regret it!"
   },
   {
-    name: "Student B",
-    initials: "SB",
+    name: "Giordano Narcisi",
+    initials: "GN",
     course: "MECH 228",
-    quote: "Great explanations and excellent practice problems."
-  },
-  {
-    name: "Student C",
-    initials: "SC",
-    course: "MATH 204",
-    quote: "Clear step-by-step guidance — highly recommend."
-  },
-  {
-    name: "Student D",
-    initials: "SD",
-    course: "MECH 368",
-    quote: "Patient and thorough — my confidence improved a lot."
-  },
-  {
-    name: "Student E",
-    initials: "SE",
-    course: "PHYS 101",
-    quote: "Useful resources and great feedback on assignments."
-  },
-  {
-    name: "Student F",
-    initials: "SF",
-    course: "MECH 303",
-    quote: "Flexible scheduling and very helpful explanations."
+    quote: "Love this guy he’s insane"
   }
 ];
 

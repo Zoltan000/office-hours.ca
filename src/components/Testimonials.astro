@@ -83,6 +83,7 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
     const WHEEL_DECAY = 0.01; // fraction remaining after 1s (fast decay → ~0.5s coast)
     let trackEl = null;
     let innerEl = null;
+    let items = []; // shuffled testimonials
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartOffset = 0;
@@ -206,10 +207,30 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
       requestAnimationFrame(tick);
     }
 
-    function setupMarquee() {
-      if (!innerEl) return;
-      const total = innerEl.scrollWidth;
-      singleWidth = total / 2 || total;
+    // Render the cards so one loop is at least as wide as the visible track.
+    // With only a few testimonials, the list is repeated until it fills the
+    // screen; then the whole loop is doubled so it wraps seamlessly.
+    function renderCards() {
+      if (!innerEl || !trackEl || !items.length) return;
+
+      // measure one copy of the list (offsetLeft/offsetWidth ignore transforms)
+      innerEl.innerHTML = "";
+      for (const t of items) innerEl.appendChild(buildCard(t));
+      const first = innerEl.firstElementChild;
+      const last = innerEl.lastElementChild;
+      const gap = parseFloat(getComputedStyle(innerEl).columnGap) || 0;
+      const oneCopy = last.offsetLeft + last.offsetWidth - first.offsetLeft + gap;
+
+      const reps = Math.max(1, Math.ceil(trackEl.clientWidth / oneCopy));
+      const loop = Array.from({ length: reps }, () => items).flat();
+
+      innerEl.innerHTML = "";
+      for (const t of [...loop, ...loop]) innerEl.appendChild(buildCard(t));
+
+      // exact distance from the first card to its repeat, gap included
+      const cards = innerEl.children;
+      singleWidth = cards[loop.length].offsetLeft - cards[0].offsetLeft;
+      scrollOffset = wrapOffset(scrollOffset);
     }
 
     function wrapOffset(offset) {
@@ -235,26 +256,15 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
       }
 
       // shuffle the list so order is different each load
-      shuffleArray(list);
-
-      // duplicate the shuffled list for seamless marquee
-      const display = [...list, ...list];
-
-      const inner = document.querySelector(".testimonial-track-inner");
-      if (!inner) return;
-      // clear any existing
-      inner.innerHTML = "";
-
-      for (const t of display) {
-        inner.appendChild(buildCard(t));
-      }
+      items = shuffleArray(list);
 
       // store element references for the tick loop
       trackEl = document.querySelector(".testimonial-track");
-      innerEl = inner;
+      innerEl = document.querySelector(".testimonial-track-inner");
+      if (!trackEl || !innerEl || !items.length) return;
 
-      // measure card widths and start JS-driven scroll
-      setupMarquee();
+      // build cards (repeated to fill the track) and start JS-driven scroll
+      renderCards();
       requestAnimationFrame(tick);
 
       // start center-emphasis loop
@@ -341,7 +351,7 @@ const testimonialsJSON = JSON.stringify(testimonials).replace(/<\/script>/g, "<\
       let resizeTimeout;
       window.addEventListener("resize", () => {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(setupMarquee, 150);
+        resizeTimeout = setTimeout(renderCards, 150);
       });
     }
 
